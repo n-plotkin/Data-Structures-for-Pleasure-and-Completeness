@@ -1,19 +1,18 @@
 import numpy as np
+import ctypes
+import sys
 
 class Vector:
     def __init__(self):
         self._size = 0
         self._capacity = 1
-        self._arr = np.zeros(1)    
+        self._arr = self.makearray(1)    
 
-    def get(self, i):
-        if (self._size > 0):
-            if(0 <= i < self._size):
-                return self._arr[i]
-            else:
-                raise Exception("Out of bounds.")
+    def __getitem__(self, i):
+        if(0 <= i < self._size):
+            return self._arr[i]
         else:
-            raise Exception("Vector is empty.")
+            raise Exception("Out of bounds.")
     
     def _checknumber(self, num):
         if not (isinstance(num, float) or isinstance(num, int)):
@@ -21,7 +20,7 @@ class Vector:
 
     def _resize(self, newcapacity):
         #create dummy with new capacity
-        newarr = np.zeros(newcapacity)
+        newarr = self.makearray(newcapacity)
         #loop through size and transfer over to dummy
         for i in range(self._size):
             newarr[i] = self._arr[i]
@@ -70,9 +69,9 @@ class Vector:
         # Determine necessary size of dummyarray
         if self._size+1 == self._capacity:
             self._capacity = self._capacity*2
-            newarr = np.zeros(self._capacity*2)  
+            newarr = self.makearray(self._capacity)  
         else:
-            newarr = np.zeros(self._capacity)
+            newarr = self.makearray(self._capacity)
         
         #meat of transfer
         if index > 0:
@@ -98,7 +97,7 @@ class Vector:
         if self.isEmpty():
             return None
         
-        newarr = np.zeros(self._capacity)
+        newarr = self.makearray(self._capacity)
         
         #meat of transfer
         if index > 0:
@@ -138,12 +137,12 @@ class Vector:
         if self._iterator+1 == self._size:
             raise StopIteration
         self._iterator += 1
-        return float(self._arr[self._iterator])
+        return self._arr[self._iterator]
 
     def copy(self):
         copy = Vector()
         for i in self:
-            copy.push(float(i))
+            copy.push(i)
         return copy
             
     
@@ -155,7 +154,7 @@ class Vector:
         if isinstance(item, Vector):
             newarr = self.copy()
             for i in range(0, len(item)):
-                newarr.push(item.get(i))
+                newarr.push(item[i])
             return newarr
         if isinstance(item, list) or isinstance(item, tuple):
             #check if it's numeric
@@ -172,23 +171,27 @@ class Vector:
             #return newarr
             return newarr
         raise TypeError("Your item must be numeric.")
-
-
-            
-
-
+    
+    def makearray(self, capacity):
+        return ((capacity*ctypes.py_object)())
 
             
 
-test = Vector()
-test1 = Vector()
-for i in range (1, 10):
-    test.insert(0, i)
-for i in range (1, 5):
-    test.delete(0)
 
-test = test + test.pop()
-print(test)
+
+            
+def main():
+    test = Vector()
+    test1 = []
+
+    for i in range (1, 10):
+        test.insert(0, i)
+        test1.insert(0, i)
+        print(f"CTYPE: Items {test._size}, Length {len(test._arr)}, Capacity {test._capacity}, datasize: {sys.getsizeof(test._arr)}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 
